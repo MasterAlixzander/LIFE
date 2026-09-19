@@ -39,7 +39,7 @@
 </head>
 <body>
 <div class="app" id="app">
-  <header><div><h1>LIFE</h1><div class="sub" id="today"></div></div><div class="sub">offline-first · v0.1</div></header>
+  <header><div><h1>LIFE</h1><div class="sub" id="today"></div></div><div class="sub">offline-first · v0.2</div></header>
   <section class="status"><div class="sub">ORIENTATION</div><strong>You’re okay.</strong><div id="nextAction" style="margin-top:6px"></div></section>
   <nav class="tabs">
     <button data-view="now" class="on">NOW</button><button data-view="week">WEEK</button><button data-view="money">MONEY</button><button data-view="parking">PARKING LOT</button>
@@ -75,13 +75,8 @@
 
 <script>
 (()=>{
-const KEY='life-v01-data';
-const seed=[
- {id:'pge',title:'PG&E initial plan payment',date:'2026-09-25',layer:'money',amount:200,status:'due'},
- {id:'geico',title:'GEICO',date:'2026-09-30',layer:'money',amount:174.63,status:'due'},
- {id:'mortgage',title:'Mortgage — September',date:'2026-09-18',layer:'money',amount:1647.30,status:'due'},
- {id:'kia',title:'Kia regular payment',date:'2026-10-06',layer:'money',amount:515.12,status:'due'}
-];
+const KEY='life-v02-data';
+const seed=[];
 let items;
 try{items=JSON.parse(localStorage.getItem(KEY))||seed}catch(e){items=seed}
 const save=()=>localStorage.setItem(KEY,JSON.stringify(items));
