@@ -97,8 +97,43 @@ body::before{
 }
 </style>
 
+
+<style>
+/* LIFE V8 — Dashboard */
+.app{max-width:1380px;padding:26px 24px 80px}
+header{display:grid;grid-template-columns:1fr auto;align-items:center;margin-bottom:18px}
+.brand{gap:16px}.life-logo{width:72px;height:72px;opacity:.72;filter:drop-shadow(0 0 18px rgba(255,255,255,.13))}
+.status{margin:18px 0;padding:26px 28px;min-height:150px;display:flex;flex-direction:column;justify-content:center;
+background:
+radial-gradient(circle at 72% 38%,rgba(230,238,255,.08),transparent 18%),
+linear-gradient(135deg,#141a23,#0d1219);position:relative;overflow:hidden}
+.status:after{content:"";position:absolute;right:7%;top:50%;width:88px;height:88px;transform:translateY(-50%);
+background:url("./life-logo.png") center/contain no-repeat;opacity:.22}
+.tabs{margin:0 0 18px}.tabs button{padding:11px 21px}
+#now.view.on{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,.7fr);gap:16px;align-items:start}
+#now>h2{grid-column:1/-1;margin:8px 0 0}
+#nowList{grid-column:1}
+#now:after{content:"UPCOMING\\A\\AYour next seven days will gather here as LIFE fills in.\\A\\AQUICK ADD\\A＋ Task   ＋ Event   ＋ Idea";
+white-space:pre-wrap;grid-column:2;grid-row:2;background:linear-gradient(145deg,var(--card),var(--panel));border:1px solid var(--line);
+border-radius:20px;padding:22px;min-height:210px;color:var(--muted);line-height:1.8;letter-spacing:.02em}
+#week.view.on,#money.view.on,#parking.view.on{animation:layerIn .42s cubic-bezier(.2,.7,.2,1) both}
+.card{min-height:92px;padding:18px 20px}
+.add{position:fixed;right:28px;bottom:26px;z-index:30}
+.add button{padding:14px 22px}
+@media(min-width:900px){
+  #money.view.on{display:grid;grid-template-columns:1fr 2fr;gap:16px;align-items:start}
+  #money>h2{grid-column:1/-1}.summary{grid-template-columns:1fr}.metric{min-height:92px}
+  #moneyList{grid-column:2;grid-row:2}
+  #week.view.on{display:block}
+}
+@media(max-width:760px){
+  #now.view.on{display:block}#now:after{display:block;margin-top:14px}
+  .status:after{opacity:.12}.life-logo{width:58px;height:58px}
+}
+</style>
+
 </head><body><div class="app">
-<header><div><div class="brand"><img src="./life-logo.png" class="life-logo" alt=""><div><h1>LIFE</h1></div></div><div class="muted" id="today"></div></div><div class="muted">V7</div></header>
+<header><div><div class="brand"><img src="./life-logo.png" class="life-logo" alt=""><div><h1>LIFE</h1></div></div><div class="muted" id="today"></div></div><div class="muted">V8</div></header>
 <div class="status"><small>ORIENTATION</small><h2 style="margin:3px 0">You’re okay.</h2><div id="next">Nothing urgent is waiting.</div></div>
 <nav class="tabs"><button class="on" data-v="now">NOW</button><button data-v="week">WEEK</button><button data-v="money">MONEY</button><button data-v="parking">PARKING LOT</button></nav>
 <section class="view on" id="now"><h2>What needs attention?</h2><div id="nowList"></div></section>
