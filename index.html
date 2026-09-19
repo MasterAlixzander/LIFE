@@ -58,8 +58,47 @@ input,select{width:100%;padding:11px;border:1px solid var(--line);border-radius:
 header .muted:last-child{opacity:.5;letter-spacing:.08em}
 @media(max-width:600px){.life-logo{width:52px;height:52px}}
 </style>
+
+<style>
+/* LIFE V6 — Launchpad */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  pointer-events:none;
+  background:#000;
+  animation:lifeLaunchVeil 1.35s cubic-bezier(.22,.72,.25,1) forwards;
+}
+.app{
+  animation:lifeLaunchApp 1.15s cubic-bezier(.22,.72,.25,1) both;
+}
+.life-logo{
+  animation:lifeMoonWake 1.65s cubic-bezier(.22,.72,.25,1) both;
+}
+@keyframes lifeLaunchVeil{
+  0%,16%{opacity:1}
+  58%{opacity:.56}
+  100%{opacity:0;visibility:hidden}
+}
+@keyframes lifeLaunchApp{
+  0%,12%{opacity:0;transform:scale(.992);filter:blur(5px)}
+  62%{opacity:.72;transform:scale(.998);filter:blur(1.5px)}
+  100%{opacity:1;transform:scale(1);filter:blur(0)}
+}
+@keyframes lifeMoonWake{
+  0%,18%{opacity:0;transform:scale(.96);filter:blur(5px) brightness(.75)}
+  64%{opacity:.58;transform:scale(1.015);filter:blur(.6px) brightness(1.12)}
+  100%{opacity:.5;transform:scale(1);filter:blur(0) brightness(1)}
+}
+@media(prefers-reduced-motion:reduce){
+  body::before{animation:none;display:none}
+  .app,.life-logo{animation:none}
+}
+</style>
+
 </head><body><div class="app">
-<header><div><div class="brand"><img src="./life-logo.png" class="life-logo" alt=""><div><h1>LIFE</h1></div></div><div class="muted" id="today"></div></div><div class="muted">V5</div></header>
+<header><div><div class="brand"><img src="./life-logo.png" class="life-logo" alt=""><div><h1>LIFE</h1></div></div><div class="muted" id="today"></div></div><div class="muted">V7</div></header>
 <div class="status"><small>ORIENTATION</small><h2 style="margin:3px 0">You’re okay.</h2><div id="next">Nothing urgent is waiting.</div></div>
 <nav class="tabs"><button class="on" data-v="now">NOW</button><button data-v="week">WEEK</button><button data-v="money">MONEY</button><button data-v="parking">PARKING LOT</button></nav>
 <section class="view on" id="now"><h2>What needs attention?</h2><div id="nowList"></div></section>
