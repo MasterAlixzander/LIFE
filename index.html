@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#111111">
+  <link rel="manifest" href="manifest.json">
+  <title>LIFE</title>
+  <style>
+    :root{--bg:#f5f3ee;--card:#fff;--ink:#161616;--muted:#777;--line:#d8d4cc;--accent:#111;--money:#4f7c63;--work:#5f6f92;--commit:#a16d62;--life:#8874a3}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    button,input,select{font:inherit} button{min-height:44px}
+    .app{max-width:900px;margin:auto;padding:22px 16px 80px}
+    header{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:20px}
+    h1{font-size:42px;letter-spacing:.16em;margin:0} .sub{color:var(--muted);font-size:14px}
+    .status{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:18px}
+    .status strong{font-size:22px}
+    .tabs,.layers{display:flex;gap:8px;overflow:auto;padding-bottom:4px}
+    .tabs button,.layers button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 14px;white-space:nowrap}
+    .tabs button.on,.layers button.on{background:var(--accent);color:white;border-color:var(--accent)}
+    .view{display:none;margin-top:18px}.view.on{display:block}
+    .week{border:1px solid var(--line);border-radius:20px;overflow:hidden;background:var(--card)}
+    .day{display:grid;grid-template-columns:74px 1fr;gap:12px;padding:13px;border-bottom:1px solid var(--line);min-height:78px}.day:last-child{border:0}
+    .date{font-weight:700}.date small{display:block;color:var(--muted);font-weight:500}
+    .event{border:1px solid var(--line);border-left:5px solid;padding:10px;border-radius:12px;margin-bottom:7px;background:#fff}
+    .event.money{border-left-color:var(--money)}.event.work{border-left-color:var(--work)}.event.commitments{border-left-color:var(--commit)}.event.life{border-left-color:var(--life)}
+    .event .meta{font-size:12px;color:var(--muted);margin-top:3px}.empty{color:var(--muted);font-size:14px;padding:8px 0}
+    .moneycard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0;display:flex;justify-content:space-between;gap:12px;align-items:center}
+    .moneycard .amt{font-size:20px;font-weight:700;text-align:right}.moneycard small{color:var(--muted)}
+    .paid{opacity:.5}.paid .name{text-decoration:line-through}
+    .parking{border:1px dashed var(--line);border-radius:16px;padding:18px;color:var(--muted)}
+    .add{position:sticky;bottom:14px;display:flex;justify-content:flex-end;margin-top:18px}.add button{border:0;background:var(--accent);color:#fff;border-radius:999px;padding:12px 18px;font-weight:700}
+    dialog{border:0;border-radius:20px;padding:0;max-width:520px;width:calc(100% - 24px)}dialog::backdrop{background:#0007}
+    form{padding:20px}.field{margin:12px 0}.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}
+    .field input,.field select{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:white;min-height:44px}
+    .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}.actions button{border:1px solid var(--line);border-radius:10px;padding:8px 14px;background:white}.actions .save{background:var(--accent);color:#fff}
+    @media(max-width:500px){h1{font-size:34px}.day{grid-template-columns:58px 1fr}.moneycard{align-items:flex-start}}
+  </style>
+</head>
+<body>
+<div class="app" id="app">
+  <header><div><h1>LIFE</h1><div class="sub" id="today"></div></div><div class="sub">offline-first · v0.1</div></header>
+  <section class="status"><div class="sub">ORIENTATION</div><strong>You’re okay.</strong><div id="nextAction" style="margin-top:6px"></div></section>
+  <nav class="tabs">
+    <button data-view="now" class="on">NOW</button><button data-view="week">WEEK</button><button data-view="money">MONEY</button><button data-view="parking">PARKING LOT</button>
+  </nav>
+
+  <section class="view on" id="now">
+    <h2>What needs attention?</h2><div id="nowList"></div>
+  </section>
+
+  <section class="view" id="week">
+    <div class="layers" style="margin-bottom:12px">
+      <button data-layer="money" class="on">💵 Money</button><button data-layer="work" class="on">💼 Work</button><button data-layer="commitments" class="on">📅 Commitments</button><button data-layer="life" class="on">✦ Life</button>
+    </div>
+    <div class="week" id="weekGrid"></div>
+  </section>
+
+  <section class="view" id="money"><h2>Money</h2><div id="moneyList"></div></section>
+  <section class="view" id="parking"><h2>Parking Lot</h2><div class="parking">Collections and intentionally deferred items live here. They are documented, but they do not count toward your active “need now” number.</div></section>
+
+  <div class="add"><button id="addBtn">＋ Add to LIFE</button></div>
+</div>
+
+<dialog id="editor">
+<form method="dialog" id="itemForm">
+  <h2>Add to LIFE</h2>
+  <div class="field"><label>What is it?</label><input id="title" required maxlength="80" placeholder="e.g. Pay PG&E"></div>
+  <div class="field"><label>Date</label><input id="date" type="date" required></div>
+  <div class="field"><label>Layer</label><select id="layer"><option value="money">Money</option><option value="work">Work</option><option value="commitments">Commitments</option><option value="life">Life</option></select></div>
+  <div class="field"><label>Amount (optional)</label><input id="amount" type="number" min="0" step=".01" inputmode="decimal"></div>
+  <div class="actions"><button value="cancel">Cancel</button><button class="save" value="default" id="saveBtn">Save</button></div>
+</form>
+</dialog>
+
+<script>
+(()=>{
+const KEY='life-v01-data';
+const seed=[
+ {id:'pge',title:'PG&E initial plan payment',date:'2026-09-25',layer:'money',amount:200,status:'due'},
+ {id:'geico',title:'GEICO',date:'2026-09-30',layer:'money',amount:174.63,status:'due'},
+ {id:'mortgage',title:'Mortgage — September',date:'2026-09-18',layer:'money',amount:1647.30,status:'due'},
+ {id:'kia',title:'Kia regular payment',date:'2026-10-06',layer:'money',amount:515.12,status:'due'}
+];
+let items;
+try{items=JSON.parse(localStorage.getItem(KEY))||seed}catch(e){items=seed}
+const save=()=>localStorage.setItem(KEY,JSON.stringify(items));
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(n||0);
+const fmt=d=>new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+const today=new Date(); document.getElementById('today').textContent=today.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tabs button,.view').forEach(x=>x.classList.remove('on'));b.classList.add('on');document.getElementById(b.dataset.view).classList.add('on');render()}));
+document.querySelectorAll('.layers button').forEach(b=>b.addEventListener('click',()=>{b.classList.toggle('on');renderWeek()}));
+function render(){
+ const active=items.filter(x=>x.layer==='money'&&x.status!=='paid').sort((a,b)=>a.date.localeCompare(b.date));
+ document.getElementById('nextAction').innerHTML=active[0]?`Next: <b>${esc(active[0].title)}</b> · ${money(active[0].amount)} · ${fmt(active[0].date)}`:'Nothing urgent is waiting.';
+ document.getElementById('nowList').innerHTML=active.slice(0,3).map(card).join('')||'<div class="empty">Nothing needs attention.</div>';
+ document.getElementById('moneyList').innerHTML=items.filter(x=>x.layer==='money').sort((a,b)=>a.date.localeCompare(b.date)).map(card).join('');
+ renderWeek();
+ document.querySelectorAll('[data-paid]').forEach(b=>b.addEventListener('click',()=>{let x=items.find(i=>i.id===b.dataset.paid);if(x){x.status=x.status==='paid'?'due':'paid';save();render()}}));
+}
+function card(x){return `<div class="moneycard ${x.status==='paid'?'paid':''}"><div><div class="name"><b>${esc(x.title)}</b></div><small>${fmt(x.date)} · ${x.status==='paid'?'Paid':'Actionable'}</small></div><div><div class="amt">${money(x.amount)}</div><button data-paid="${esc(x.id)}">${x.status==='paid'?'Undo':'Mark paid'}</button></div></div>`}
+function renderWeek(){
+ const selected=[...document.querySelectorAll('.layers button.on')].map(b=>b.dataset.layer);
+ const start=new Date('2026-09-21T12:00:00');
+ let html='';
+ for(let i=0;i<7;i++){const d=new Date(start);d.setDate(start.getDate()+i);const iso=d.toISOString().slice(0,10);const dayitems=items.filter(x=>x.date===iso&&selected.includes(x.layer));
+ html+=`<div class="day"><div class="date">${d.toLocaleDateString('en-US',{weekday:'short'}).toUpperCase()}<small>${d.getDate()}</small></div><div>${dayitems.length?dayitems.map(x=>`<div class="event ${x.layer}"><b>${esc(x.title)}</b>${x.amount?`<div class="meta">${money(x.amount)}</div>`:''}</div>`).join(''):'<div class="empty">Open space</div>'}</div></div>`}
+ document.getElementById('weekGrid').innerHTML=html;
+}
+const dlg=document.getElementById('editor');
+document.getElementById('addBtn').addEventListener('click',()=>{document.getElementById('itemForm').reset();document.getElementById('date').value=new Date().toISOString().slice(0,10);dlg.showModal()});
+document.getElementById('saveBtn').addEventListener('click',e=>{e.preventDefault();const title=document.getElementById('title').value.trim(),date=document.getElementById('date').value;if(!title||!date)return;items.push({id:'i'+Date.now(),title,date,layer:document.getElementById('layer').value,amount:Math.max(0,Number(document.getElementById('amount').value)||0),status:'due'});save();dlg.close();render()});
+save();render();
+if('serviceWorker'in navigator){navigator.serviceWorker.register('./service-worker.js').catch(()=>{})}
+})();
+</script>
+</body></html>
