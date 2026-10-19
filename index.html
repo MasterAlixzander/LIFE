@@ -148,15 +148,15 @@ background:url("./life-logo.png") center/contain no-repeat;opacity:.22}
 </style>
 
 <style>
-/* LIFE V10 Attack List */
+/* LIFE V11 Attack List */
 #attack.view.on{display:block;animation:layerIn .25s ease both}
 .attack-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:10px 0 12px}
 .attack-bar select,.attack-bar input,.attack-bar button,.attack-tools button{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:9px;color:var(--ink);font-size:13px}
 .attack-bar input{min-width:140px;flex:1}
 .attack-group{margin:13px 0 19px;border:1px solid var(--line);border-radius:13px;overflow:hidden}
 .attack-heading{padding:10px 12px;background:var(--panel);font-size:12px;letter-spacing:.06em;font-weight:750;color:var(--accent2)}
-.attack-item{display:flex;align-items:center;gap:9px;padding:8px 12px;border-top:1px solid var(--line);min-height:36px;font-size:13px;line-height:1.2}
-.attack-item input{width:17px;height:17px;flex-shrink:0;accent-color:var(--money);margin:0}
+.attack-item{display:flex;align-items:center;gap:8px;padding:5px 10px;border-top:1px solid var(--line);min-height:29px;font-size:12px;line-height:1.15}
+.attack-item input{width:15px;height:15px;flex-shrink:0;accent-color:var(--money);margin:0}
 .attack-item .attack-name{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .attack-item.done .attack-name{text-decoration:line-through;opacity:.5}
 .attack-item .attack-pri{font-size:10px;color:var(--muted)}
@@ -166,12 +166,13 @@ background:url("./life-logo.png") center/contain no-repeat;opacity:.22}
 #attackAdd{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
 #attackAdd input{flex:1;min-width:160px;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:9px}
 #attackAdd select,#attackAdd button{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:9px}
-@media(max-width:560px){.attack-item{font-size:12px;padding:8px}.attack-heading{font-size:11px}.attack-item .attack-name{font-size:12px}}
+@media(max-width:560px){.attack-item{font-size:12px;padding:5px 8px}.attack-heading{font-size:11px}.attack-item .attack-name{font-size:12px}}
+#nowAttack{margin:8px 0 14px}#nowAttack .attack-item{background:var(--card2);border:1px solid var(--line);border-radius:8px;margin:4px 0}#nowAttack .attack-heading{background:none;padding:3px 0 8px}#nowAttack .attack-item .attack-name{font-size:13px}#nowAttack .attack-item .attack-pri{font-size:11px}#nowAttack .attack-item input{cursor:pointer}
 </style></head><body><div class="app">
-<header><div><div class="brand"><img src="./life-logo.png" class="life-logo" alt=""><div><h1>LIFE</h1></div></div><div class="muted" id="today"></div></div><div class="muted">V10</div></header>
+<header><div><div class="brand"><img src="./life-logo.png" class="life-logo" alt=""><div><h1>LIFE</h1></div></div><div class="muted" id="today"></div></div><div class="muted">V11</div></header>
 <div class="status"><small>ORIENTATION</small><h2 style="margin:3px 0">You’re okay.</h2><div id="next">Nothing urgent is waiting.</div></div>
 <nav class="tabs"><button class="on" data-v="now">NOW</button><button data-v="week">WEEK</button><button data-v="money">MONEY</button><button data-v="parking">PARKING LOT</button><button data-v="attack">ATTACK LIST</button></nav>
-<section class="view on" id="now"><h2>What needs attention?</h2><div id="nowList"></div>
+<section class="view on" id="now"><h2>What needs attention?</h2><div id="nowAttack" aria-live="polite"></div><div id="nowList"></div>
 <aside class="dash-side">
   <section class="side-card">
     <div class="side-kicker">UPCOMING · 7 DAYS</div>
@@ -296,6 +297,24 @@ const complete=tasks.filter(isDone).length;$('attackCount').textContent=`${compl
 let groups=new Map();for(let x of list){let key=sort==='priority'?x.priority:x.category;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(x)}
 $('attackList').innerHTML=[...groups].map(([key,arr])=>`<div class="attack-group"><div class="attack-heading">${escapeHTML(key)} · ${arr.length}</div>${arr.map(x=>`<label class="attack-item ${isDone(x)?'done':''}" title="${escapeHTML(x.title)}"><input type="checkbox" data-task="${escapeHTML(x.id)}" ${isDone(x)?'checked':''}><span class="attack-name">${escapeHTML(x.title)}</span><span class="attack-pri">${escapeHTML(x.priority||'P3')}</span>${x.recurring?'<span class="attack-due">↻ weekly</span>':x.due?`<span class="attack-due">${escapeHTML(x.due.slice(5))}</span>`:''}</label>`).join('')}</div>`).join('')||'<p class="muted">No matching tasks.</p>';
 $('attackList').querySelectorAll('[data-task]').forEach(el=>el.addEventListener('change',()=>{let x=tasks.find(t=>t.id===el.dataset.task);if(x)setDone(x,el.checked)}));
+renderNowAttack();
+}
+function renderNowAttack(){
+  const now=new Date(),day=now.getDay(),today=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
+  const pending=tasks.filter(x=>!isDone(x));
+  const relevant=pending.filter(x=>!x.recurring||(x.recurring==='monday'&&day===1)||(x.recurring==='thursday'&&day===4));
+  const score=x=>{
+    let p=x.priority==='P1'?0:x.priority==='P2'?100:200;
+    if(x.due){const days=Math.round((new Date(x.due+'T12:00:00')-new Date(today+'T12:00:00'))/86400000);p+=days<0?-120:days===0?-100:days<=2?-80:days<=7?-40:30;}
+    if(x.recurring)p-=110;
+    return p;
+  };
+  relevant.sort((a,b)=>score(a)-score(b)||(a.due||'9999').localeCompare(b.due||'9999')||a.id.localeCompare(b.id));
+  const top=relevant.slice(0,5),box=$('nowAttack');
+  box.innerHTML=top.length?'<div class="attack-heading">TOP 5 · EXECUTIVE ATTACK LIST</div>'+top.map(x=>`<label class="attack-item" title="${escapeHTML(x.title)}"><input type="checkbox" data-now-task="${escapeHTML(x.id)}"><span class="attack-name">${escapeHTML(x.title)}</span><span class="attack-pri">${escapeHTML(x.priority||'P3')}</span>${x.due?`<span class="attack-due">${escapeHTML(x.due.slice(5))}</span>`:''}</label>`).join(''):'<p class="muted">Attack List clear.</p>';
+  box.querySelectorAll('[data-now-task]').forEach(el=>el.addEventListener('change',()=>{const x=tasks.find(t=>t.id===el.dataset.nowTask);if(x)setDone(x,el.checked)}));
+  const orientation=document.querySelector('.status h2'),next=$('next');
+  if(top.length){orientation.textContent='Your priorities are ready.';next.textContent=`${pending.length} open tasks · ${top.length} selected for NOW`;}else{orientation.textContent='You’re okay.';if(!next.textContent||next.textContent==='Nothing urgent is waiting.')next.textContent='Nothing urgent is waiting.';}
 }
 for(let id of ['attackSearch','attackCategory','attackFilter','attackSort'])$(id).addEventListener('input',render);
 $('attackAdd').addEventListener('submit',e=>{e.preventDefault();let title=$('attackNew').value.trim();if(!title)return;tasks.push({id:'custom-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),title,category:$('attackNewCategory').value||'HOME & PERSONAL',priority:'P2',due:'',recurring:'',done:false});$('attackNew').value='';save();render()});
