@@ -108,7 +108,7 @@ background:
 radial-gradient(circle at 72% 38%,rgba(230,238,255,.08),transparent 18%),
 linear-gradient(135deg,#141a23,#0d1219);position:relative;overflow:hidden}
 .status:after{content:"";position:absolute;right:7%;top:50%;width:88px;height:88px;transform:translateY(-50%);
-background:url("./life-logo.png") center/contain no-repeat;opacity:.22}
+background:none;opacity:0}
 .tabs{margin:0 0 18px}.tabs button{padding:11px 21px}
 #now.view.on{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,.7fr);gap:16px;align-items:start}
 #now>h2{grid-column:1/-1;margin:8px 0 0}
@@ -126,7 +126,7 @@ background:url("./life-logo.png") center/contain no-repeat;opacity:.22}
 }
 @media(max-width:760px){
   #now.view.on{display:block}
-  .status:after{opacity:.12}.life-logo{width:58px;height:58px}
+  .status:after{display:none}.life-logo{width:58px;height:58px}
 }
 </style>
 
@@ -168,8 +168,10 @@ background:url("./life-logo.png") center/contain no-repeat;opacity:.22}
 #attackAdd select,#attackAdd button{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:9px}
 @media(max-width:560px){.attack-item{font-size:12px;padding:5px 8px}.attack-heading{font-size:11px}.attack-item .attack-name{font-size:12px}}
 #nowAttack{margin:8px 0 14px}#nowAttack .attack-item{background:var(--card2);border:1px solid var(--line);border-radius:8px;margin:4px 0}#nowAttack .attack-heading{background:none;padding:3px 0 8px}#nowAttack .attack-item .attack-name{font-size:13px}#nowAttack .attack-item .attack-pri{font-size:11px}#nowAttack .attack-item input{cursor:pointer}
+.attack-item{min-height:34px;padding:7px 10px}
+@media(max-width:600px){.attack-item{min-height:34px;padding:7px 8px}.attack-bar{gap:6px}.attack-bar input,.attack-bar select{min-width:0}.status{min-height:115px;padding:20px}.brand .life-logo{width:52px;height:52px}}
 </style></head><body><div class="app">
-<header><div><div class="brand"><img src="./life-logo.png" class="life-logo" alt=""><div><h1>LIFE</h1></div></div><div class="muted" id="today"></div></div><div class="muted">V11</div></header>
+<header><div><div class="brand"><img src="./life-logo.png" class="life-logo" alt=""><div><h1>LIFE</h1></div></div><div class="muted" id="today"></div></div><div class="muted">V11.1</div></header>
 <div class="status"><small>ORIENTATION</small><h2 style="margin:3px 0">You’re okay.</h2><div id="next">Nothing urgent is waiting.</div></div>
 <nav class="tabs"><button class="on" data-v="now">NOW</button><button data-v="week">WEEK</button><button data-v="money">MONEY</button><button data-v="parking">PARKING LOT</button><button data-v="attack">ATTACK LIST</button></nav>
 <section class="view on" id="now"><h2>What needs attention?</h2><div id="nowAttack" aria-live="polite"></div><div id="nowList"></div>
@@ -207,7 +209,7 @@ $('today').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',mon
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button,.view').forEach(x=>x.classList.remove('on'));b.classList.add('on');$(b.dataset.v).classList.add('on');render()});
 document.querySelectorAll('.layers button').forEach(b=>b.onclick=()=>{b.classList.toggle('on');week()});
 function card(x){return `<div class="card ${x.status==='paid'?'paid':''}"><div><b class="name">${esc(x.title)}</b><br><small>${fmt(x.date)} · ${x.status==='paid'?'Paid':x.priority==='protect'?'Protect':'Actionable'}${x.recurring?' · Monthly':''}</small></div><div><div class="amt">${x.amount?cash(x.amount):''}</div><button class="mini" data-paid="${x.id}">${x.status==='paid'?'Undo':'Paid'}</button><button class="mini" data-edit="${x.id}">Edit</button><button class="mini" data-del="${x.id}">Delete</button></div></div>`}
-function render(){let m=items.filter(x=>x.layer==='money'),open=m.filter(x=>x.status!=='paid').sort((a,b)=>a.date.localeCompare(b.date));$('next').innerHTML=open[0]?`Next: <b>${esc(open[0].title)}</b>${open[0].amount?' · '+cash(open[0].amount):''} · ${fmt(open[0].date)}`:'Nothing urgent is waiting.';$('nowList').innerHTML=open.slice(0,3).map(card).join('')||'<p class="muted">Nothing needs attention.</p>';$('moneyList').innerHTML=m.sort((a,b)=>a.date.localeCompare(b.date)).map(card).join('');$('active').textContent=cash(open.reduce((s,x)=>s+(+x.amount||0),0));let n=new Date();n.setHours(0,0,0,0),e=new Date(n);e.setDate(n.getDate()+7);$('seven').textContent=cash(open.filter(x=>{let d=new Date(x.date+'T12:00:00');return d>=n&&d<=e}).reduce((s,x)=>s+(+x.amount||0),0));$('paid').textContent=m.filter(x=>x.status==='paid').length;bind();week()}
+function render(){let m=items.filter(x=>x.layer==='money'),open=m.filter(x=>x.status!=='paid').sort((a,b)=>a.date.localeCompare(b.date));$('next').innerHTML=open[0]?`Next: <b>${esc(open[0].title)}</b>${open[0].amount?' · '+cash(open[0].amount):''} · ${fmt(open[0].date)}`:'Nothing urgent is waiting.';$('nowList').innerHTML=open.slice(0,3).map(card).join('');$('moneyList').innerHTML=m.sort((a,b)=>a.date.localeCompare(b.date)).map(card).join('');$('active').textContent=cash(open.reduce((s,x)=>s+(+x.amount||0),0));let n=new Date();n.setHours(0,0,0,0),e=new Date(n);e.setDate(n.getDate()+7);$('seven').textContent=cash(open.filter(x=>{let d=new Date(x.date+'T12:00:00');return d>=n&&d<=e}).reduce((s,x)=>s+(+x.amount||0),0));$('paid').textContent=m.filter(x=>x.status==='paid').length;bind();week()}
 function bind(){document.querySelectorAll('[data-paid]').forEach(b=>b.onclick=()=>{let x=items.find(i=>i.id===b.dataset.paid);if(x.status!=='paid'&&x.recurring){let d=new Date(x.date+'T12:00:00');d.setMonth(d.getMonth()+1);items.push({...x,id:'i'+Date.now(),date:d.toISOString().slice(0,10),status:'due'})}x.status=x.status==='paid'?'due':'paid';save();render()});document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{if(confirm('Delete this item?')){items=items.filter(i=>i.id!==b.dataset.del);save();render()}});document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openForm(items.find(i=>i.id===b.dataset.edit)))}
 function week(){let sel=[...document.querySelectorAll('.layers .on')].map(b=>b.dataset.l),start=new Date();start.setHours(12,0,0,0),h='';for(let i=0;i<7;i++){let d=new Date(start);d.setDate(start.getDate()+i);let iso=d.toISOString().slice(0,10),a=items.filter(x=>x.date===iso&&sel.includes(x.layer));h+=`<div class="day"><b>${d.toLocaleDateString('en-US',{weekday:'short'}).toUpperCase()}<br><small>${d.getDate()}</small></b><div>${a.map(x=>`<div class="event ${x.layer}"><b>${esc(x.title)}</b>${x.amount?'<br><small>'+cash(x.amount)+'</small>':''}</div>`).join('')||'<small>Open space</small>'}</div></div>`}$('weekGrid').innerHTML=h}
 function openForm(x){$('form').reset();$('formTitle').textContent=x?'Edit LIFE item':'Add to LIFE';$('editId').value=x?.id||'';$('title').value=x?.title||'';$('date').value=x?.date||new Date().toISOString().slice(0,10);$('layer').value=x?.layer||'money';$('amount').value=x?.amount||'';$('priority').value=x?.priority||'normal';$('recurring').checked=!!x?.recurring;$('dlg').showModal()}
@@ -265,11 +267,11 @@ $('add').onclick=()=>openForm();$('cancel').onclick=()=>$('dlg').close();$('form
   document.addEventListener("click",e=>{
     const b=e.target.closest("[data-quick]");
     if(b) openExistingAdd(b.dataset.quick);
-    setTimeout(renderUpcoming,80);
+    setTimeout(()=>{if(window.lifeRefreshUpcoming)window.lifeRefreshUpcoming();else renderUpcoming()},80);
   });
-  window.addEventListener("storage",renderUpcoming);
-  document.addEventListener("DOMContentLoaded",renderUpcoming);
-  setTimeout(renderUpcoming,150);
+  window.addEventListener("storage",()=>{if(window.lifeRefreshUpcoming)window.lifeRefreshUpcoming();else renderUpcoming()});
+  document.addEventListener("DOMContentLoaded",()=>{if(window.lifeRefreshUpcoming)window.lifeRefreshUpcoming();else renderUpcoming()});
+  setTimeout(()=>{if(window.lifeRefreshUpcoming)window.lifeRefreshUpcoming();else renderUpcoming()},150);
 })();
 </script>
 
@@ -299,6 +301,21 @@ $('attackList').innerHTML=[...groups].map(([key,arr])=>`<div class="attack-group
 $('attackList').querySelectorAll('[data-task]').forEach(el=>el.addEventListener('change',()=>{let x=tasks.find(t=>t.id===el.dataset.task);if(x)setDone(x,el.checked)}));
 renderNowAttack();
 }
+window.lifeRefreshUpcoming=renderAttackUpcoming;
+function renderAttackUpcoming(){
+  const box=$('upcoming7');if(!box)return;
+  const start=new Date();start.setHours(0,0,0,0);
+  const end=new Date(start);end.setDate(end.getDate()+7);
+  const entries=[];
+  const parse=d=>{if(!/^\d{4}-\d{2}-\d{2}$/.test(d||''))return null;const t=new Date(d+'T12:00:00');return isNaN(t)?null:t};
+  tasks.filter(x=>!isDone(x)&&x.due).forEach(x=>{const d=parse(x.due);if(d&&d>=start&&d<=end)entries.push({date:d,title:x.title,source:'TASK'})});
+  try{const raw=JSON.parse(localStorage.getItem('life-data')||'[]');const legacy=Array.isArray(raw)?raw:Array.isArray(raw.items)?raw.items:[];
+    legacy.filter(x=>x.status!=='paid'&&!x.paid).forEach(x=>{const d=parse(x.date||x.due||x.dueDate);if(d&&d>=start&&d<=end)entries.push({date:d,title:x.title||x.name||x.label||'Untitled',source:'LIFE'})});
+  }catch(e){}
+  entries.sort((a,b)=>a.date-b.date);
+  const seen=new Set(),unique=entries.filter(x=>{const key=x.date.toDateString()+'|'+x.title.toLowerCase();if(seen.has(key))return false;seen.add(key);return true});
+  box.innerHTML=unique.length?unique.slice(0,7).map(x=>`<div class="up-row"><div class="up-date">${x.date.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})}</div><div class="up-name">${escapeHTML(x.title)}</div><div class="up-amt">${x.source}</div></div>`).join(''):'<div class="up-empty">No dated items in the next seven days.</div>';
+}
 function renderNowAttack(){
   const now=new Date(),day=now.getDay(),today=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
   const pending=tasks.filter(x=>!isDone(x));
@@ -312,6 +329,7 @@ function renderNowAttack(){
   relevant.sort((a,b)=>score(a)-score(b)||(a.due||'9999').localeCompare(b.due||'9999')||a.id.localeCompare(b.id));
   const top=relevant.slice(0,5),box=$('nowAttack');
   box.innerHTML=top.length?'<div class="attack-heading">TOP 5 · EXECUTIVE ATTACK LIST</div>'+top.map(x=>`<label class="attack-item" title="${escapeHTML(x.title)}"><input type="checkbox" data-now-task="${escapeHTML(x.id)}"><span class="attack-name">${escapeHTML(x.title)}</span><span class="attack-pri">${escapeHTML(x.priority||'P3')}</span>${x.due?`<span class="attack-due">${escapeHTML(x.due.slice(5))}</span>`:''}</label>`).join(''):'<p class="muted">Attack List clear.</p>';
+  renderAttackUpcoming();
   box.querySelectorAll('[data-now-task]').forEach(el=>el.addEventListener('change',()=>{const x=tasks.find(t=>t.id===el.dataset.nowTask);if(x)setDone(x,el.checked)}));
   const orientation=document.querySelector('.status h2'),next=$('next');
   if(top.length){orientation.textContent='Your priorities are ready.';next.textContent=`${pending.length} open tasks · ${top.length} selected for NOW`;}else{orientation.textContent='You’re okay.';if(!next.textContent||next.textContent==='Nothing urgent is waiting.')next.textContent='Nothing urgent is waiting.';}
