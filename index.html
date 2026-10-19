@@ -49,7 +49,7 @@ input,select{width:100%;padding:11px;border:1px solid var(--line);border-radius:
 @media(max-width:600px){.summary{grid-template-columns:1fr}.card{align-items:flex-start}h1{font-size:36px}}
 </style>
 <link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#090b0f">
+<meta name="theme-color" content="#000000">
 <link rel="apple-touch-icon" href="./icon-192.png">
 
 <style>
@@ -170,8 +170,24 @@ background:none;opacity:0}
 #nowAttack{margin:8px 0 14px}#nowAttack .attack-item{background:var(--card2);border:1px solid var(--line);border-radius:8px;margin:4px 0}#nowAttack .attack-heading{background:none;padding:3px 0 8px}#nowAttack .attack-item .attack-name{font-size:13px}#nowAttack .attack-item .attack-pri{font-size:11px}#nowAttack .attack-item input{cursor:pointer}
 .attack-item{min-height:34px;padding:7px 10px}
 @media(max-width:600px){.attack-item{min-height:34px;padding:7px 8px}.attack-bar{gap:6px}.attack-bar input,.attack-bar select{min-width:0}.status{min-height:115px;padding:20px}.brand .life-logo{width:52px;height:52px}}
+</style><style>
+/* LIFE V11.2: strict monochrome system */
+:root{--bg:#000;--panel:#090909;--card:#111;--card2:#191919;--ink:#fff;--muted:#aaa;--line:#343434;--accent:#fff;--accent2:#ddd;--money:#fff;--work:#ddd;--commit:#bbb;--life:#999}
+body{background:#000;color:#fff}
+.status,.side-card,.card,.metric{background:#101010}
+.status{background:linear-gradient(135deg,#151515,#080808)}
+.tabs .on,.layers .on{background:#292929;border-color:#666}
+.add button,.actions .save{background:#fff;color:#000;border-color:#fff}
+.add button{box-shadow:0 10px 30px #0009}
+input,select{background:#111}
+.parking{background:#090909;border-color:#555}
+.attack-item input{accent-color:#fff}
+.attack-heading{color:#fff}
+.event.money,.event.work,.event.commitments,.event.life{border-color:#aaa}
+.life-logo,.brand .life-logo{opacity:1;filter:none}
+@keyframes lifeMoonWake{0%,18%{opacity:0;transform:scale(.96);filter:blur(5px)}64%{opacity:.8;transform:scale(1.01);filter:blur(.5px)}100%{opacity:1;transform:scale(1);filter:none}}
 </style></head><body><div class="app">
-<header><div><div class="brand"><img src="./life-logo.png" class="life-logo" alt=""><div><h1>LIFE</h1></div></div><div class="muted" id="today"></div></div><div class="muted">V11.1</div></header>
+<header><div><div class="brand"><img src="./life-logo.png" class="life-logo" alt=""><div><h1>LIFE</h1></div></div><div class="muted" id="today"></div></div><div class="muted">V11.2</div></header>
 <div class="status"><small>ORIENTATION</small><h2 style="margin:3px 0">You’re okay.</h2><div id="next">Nothing urgent is waiting.</div></div>
 <nav class="tabs"><button class="on" data-v="now">NOW</button><button data-v="week">WEEK</button><button data-v="money">MONEY</button><button data-v="parking">PARKING LOT</button><button data-v="attack">ATTACK LIST</button></nav>
 <section class="view on" id="now"><h2>What needs attention?</h2><div id="nowAttack" aria-live="polite"></div><div id="nowList"></div>
